@@ -1,0 +1,224 @@
+fileFormatVersion: 2
+guid: 20f86573b5678da4294bfa453f7f2788
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: RokokoGuy_Head
+    100002: RokokoGuy_HeadEnd
+    100004: RokokoGuy_Hips
+    100006: RokokoGuy_LeftArm
+    100008: RokokoGuy_LeftFoot
+    100010: RokokoGuy_LeftForeArm
+    100012: RokokoGuy_LeftHand
+    100014: RokokoGuy_LeftHandEnd
+    100016: RokokoGuy_LeftIndex01
+    100018: RokokoGuy_LeftIndex02
+    100020: RokokoGuy_LeftIndex03
+    100022: RokokoGuy_LeftIndex04
+    100024: RokokoGuy_LeftLeg
+    100026: RokokoGuy_LeftMiddle01
+    100028: RokokoGuy_LeftMiddle02
+    100030: RokokoGuy_LeftMiddle03
+    100032: RokokoGuy_LeftMiddleEnd
+    100034: RokokoGuy_LeftPinky01
+    100036: RokokoGuy_LeftPinky02
+    100038: RokokoGuy_LeftPinky03
+    100040: RokokoGuy_LeftPinkyEnd
+    100042: RokokoGuy_LeftRing01
+    100044: RokokoGuy_LeftRing02
+    100046: RokokoGuy_LeftRing03
+    100048: RokokoGuy_LeftRingEnd
+    100050: RokokoGuy_LeftShoulder
+    100052: RokokoGuy_LeftThumb01
+    100054: RokokoGuy_LeftThumb02
+    100056: RokokoGuy_LeftThumb03
+    100058: RokokoGuy_LeftThumbEnd
+    100060: RokokoGuy_LeftToe
+    100062: RokokoGuy_LeftToeEnd
+    100064: RokokoGuy_LeftUpLeg
+    100066: RokokoGuy_Neck
+    100068: RokokoGuy_RightArm
+    100070: RokokoGuy_RightFoot
+    100072: RokokoGuy_RightForeArm
+    100074: RokokoGuy_RightHand
+    100076: RokokoGuy_RightHandEnd
+    100078: RokokoGuy_RightIndex005
+    100080: RokokoGuy_RightIndex006
+    100082: RokokoGuy_RightIndex007
+    100084: RokokoGuy_RightIndex008
+    100086: RokokoGuy_RightLeg
+    100088: RokokoGuy_RightMiddle004
+    100090: RokokoGuy_RightMiddle005
+    100092: RokokoGuy_RightMiddle006
+    100094: RokokoGuy_RightMiddleEnd001
+    100096: RokokoGuy_RightPinky004
+    100098: RokokoGuy_RightPinky005
+    100100: RokokoGuy_RightPinky006
+    100102: RokokoGuy_RightPinkyEnd001
+    100104: RokokoGuy_RightRing004
+    100106: RokokoGuy_RightRing005
+    100108: RokokoGuy_RightRing006
+    100110: RokokoGuy_RightRingEnd001
+    100112: RokokoGuy_RightShoulder
+    100114: RokokoGuy_RightThumb004
+    100116: RokokoGuy_RightThumb005
+    100118: RokokoGuy_RightThumb006
+    100120: RokokoGuy_RightThumbEnd001
+    100122: RokokoGuy_RightToe
+    100124: RokokoGuy_RightToeEnd
+    100126: RokokoGuy_RightUpLeg
+    100128: RokokoGuy_Spine
+    100130: RokokoGuy_Spine2
+    100132: //RootNode
+    400000: RokokoGuy_Head
+    400002: RokokoGuy_HeadEnd
+    400004: RokokoGuy_Hips
+    400006: RokokoGuy_LeftArm
+    400008: RokokoGuy_LeftFoot
+    400010: RokokoGuy_LeftForeArm
+    400012: RokokoGuy_LeftHand
+    400014: RokokoGuy_LeftHandEnd
+    400016: RokokoGuy_LeftIndex01
+    400018: RokokoGuy_LeftIndex02
+    400020: RokokoGuy_LeftIndex03
+    400022: RokokoGuy_LeftIndex04
+    400024: RokokoGuy_LeftLeg
+    400026: RokokoGuy_LeftMiddle01
+    400028: RokokoGuy_LeftMiddle02
+    400030: RokokoGuy_LeftMiddle03
+    400032: RokokoGuy_LeftMiddleEnd
+    400034: RokokoGuy_LeftPinky01
+    400036: RokokoGuy_LeftPinky02
+    400038: RokokoGuy_LeftPinky03
+    400040: RokokoGuy_LeftPinkyEnd
+    400042: RokokoGuy_LeftRing01
+    400044: RokokoGuy_LeftRing02
+    400046: RokokoGuy_LeftRing03
+    400048: RokokoGuy_LeftRingEnd
+    400050: RokokoGuy_LeftShoulder
+    400052: RokokoGuy_LeftThumb01
+    400054: RokokoGuy_LeftThumb02
+    400056: RokokoGuy_LeftThumb03
+    400058: RokokoGuy_LeftThumbEnd
+    400060: RokokoGuy_LeftToe
+    400062: RokokoGuy_LeftToeEnd
+    400064: RokokoGuy_LeftUpLeg
+    400066: RokokoGuy_Neck
+    400068: RokokoGuy_RightArm
+    400070: RokokoGuy_RightFoot
+    400072: RokokoGuy_RightForeArm
+    400074: RokokoGuy_RightHand
+    400076: RokokoGuy_RightHandEnd
+    400078: RokokoGuy_RightIndex005
+    400080: RokokoGuy_RightIndex006
+    400082: RokokoGuy_RightIndex007
+    400084: RokokoGuy_RightIndex008
+    400086: RokokoGuy_RightLeg
+    400088: RokokoGuy_RightMiddle004
+    400090: RokokoGuy_RightMiddle005
+    400092: RokokoGuy_RightMiddle006
+    400094: RokokoGuy_RightMiddleEnd001
+    400096: RokokoGuy_RightPinky004
+    400098: RokokoGuy_RightPinky005
+    400100: RokokoGuy_RightPinky006
+    400102: RokokoGuy_RightPinkyEnd001
+    400104: RokokoGuy_RightRing004
+    400106: RokokoGuy_RightRing005
+    400108: RokokoGuy_RightRing006
+    400110: RokokoGuy_RightRingEnd001
+    400112: RokokoGuy_RightShoulder
+    400114: RokokoGuy_RightThumb004
+    400116: RokokoGuy_RightThumb005
+    400118: RokokoGuy_RightThumb006
+    400120: RokokoGuy_RightThumbEnd001
+    400122: RokokoGuy_RightToe
+    400124: RokokoGuy_RightToeEnd
+    400126: RokokoGuy_RightUpLeg
+    400128: RokokoGuy_Spine
+    400130: RokokoGuy_Spine2
+    400132: //RootNode
+    7400000: clip
+    9500000: //RootNode
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 0.01
+    hasPreviousCalculatedGlobalScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
