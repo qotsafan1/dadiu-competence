@@ -30,9 +30,11 @@ public class MovePlayer : MonoBehaviour
 
     int startFrame = 4;
 
+    int lastCalculatedFrame;
+
     bool rotationLoaded = false;
 
-    Vector3 futureWantedPosition;
+    Vector3[] futureWantedPosition;
     private int loopFrames;
 
     private void Awake()
@@ -44,7 +46,9 @@ public class MovePlayer : MonoBehaviour
     void Start()
     {
         currentFrame = startFrame;
+        lastCalculatedFrame = startFrame;
         animN = startFrame;
+        futureWantedPosition = new Vector3[3] { transform.position, transform.position, transform.position };
 
         // positions = new JObject();
         // CalculateAllBestNeighbours();
@@ -53,21 +57,17 @@ public class MovePlayer : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        DrawFuturePosition();
-        // DrawPossibilities();
+       DrawFuturePosition();
+       DrawPossibilities();
 
-        PlayAnim();
-
+       PlayAnim();
         
+       
         // SavePositionData();
     }
 
     private void PlayAnim()
     {
-        PlaySpecificFrame(animN);        
-
-        DrawTrajectoryOfCurrentFrame(Convert.ToInt32(animN), Color.red, 30);
-
         if (!rotationLoaded)
         {
             var angle = Quaternion.Euler(0, frameRotationData[startFrame], 0);
@@ -75,10 +75,16 @@ public class MovePlayer : MonoBehaviour
             rotationLoaded = true;
         }
 
+        PlaySpecificFrame(animN);        
+
+        DrawTrajectoryOfCurrentFrame(Convert.ToInt32(animN), Color.red, 30);
+
+        
+        Debug.Log(animN);
         if (loopFrames == 30)
         {
-            animN = CalculateFrame();
-            // Debug.Log(animN);
+            Debug.Log("Calculating");
+            animN = CalculateFrame();            
             loopFrames = 0;
         }
         else
@@ -86,6 +92,7 @@ public class MovePlayer : MonoBehaviour
             loopFrames++;
             animN += 1;
         }
+        
     }
 
     private Vector3 CalculateFuturePosition(int frameNumber)
@@ -116,7 +123,9 @@ public class MovePlayer : MonoBehaviour
             Debug.DrawLine(nextPosition[i], nextPosition[i - 1], Color.blue);
         }
 
-        futureWantedPosition = nextPosition[nextPosition.Count - 1];
+        futureWantedPosition[0] = nextPosition[nextPosition.Count - 21];
+        futureWantedPosition[1] = nextPosition[nextPosition.Count - 11];
+        futureWantedPosition[2] = nextPosition[nextPosition.Count - 1];
     }
 
     private float CalculateFrame()
@@ -126,18 +135,22 @@ public class MovePlayer : MonoBehaviour
 
         float bestFinish = 100000f;
         int bestNextFrame = 3;
-        //Debug.Log(currentFrame);
-        //Debug.Log(animN);
 
         for (var i=0; i<300; i++)
-        {            
-            if (Convert.ToInt32(neighbours[i.ToString()])+40 > (totalFrames - 1) || Convert.ToInt32(neighbours[i.ToString()]) == currentFrame)
-            {
+        {
+            int loopedFrame = Convert.ToInt32(neighbours[i.ToString()]);
+
+            if (loopedFrame + 62 > (totalFrames - 1) 
+                || loopedFrame == currentFrame 
+            ) {
                 continue;
             }
 
-            Vector3 lastPos = GetBestTrajectoryOfCurrentFrame(Convert.ToInt32(neighbours[i.ToString()]));
-            float temptFinish = Vector3.Distance(futureWantedPosition, lastPos);
+            Vector3[] lastPos = GetBestTrajectoryOfCurrentFrame(loopedFrame);
+
+            float temptFinish = Vector3.Distance(futureWantedPosition[0], lastPos[0]) 
+                + Vector3.Distance(futureWantedPosition[1], lastPos[1]) 
+                + 2*Vector3.Distance(futureWantedPosition[2], lastPos[2]);
 
             if (temptFinish < bestFinish)
             {
@@ -145,20 +158,17 @@ public class MovePlayer : MonoBehaviour
                 bestNextFrame = i;
             }
         }
-        // Debug.Log(float.Parse(neighbours[bestNextFrame.ToString()].ToString()));
-        if (float.Parse(neighbours[bestNextFrame.ToString()].ToString()) > totalFrames - 40)
-        {
-            Debug.Log(float.Parse(neighbours[bestNextFrame.ToString()].ToString()));
-        }
-        Debug.Log(float.Parse(neighbours[bestNextFrame.ToString()].ToString()));
+
+        lastCalculatedFrame = Convert.ToInt32(neighbours[bestNextFrame.ToString()]);
+ 
         return float.Parse(neighbours[bestNextFrame.ToString()].ToString());
     }
 
     private void PlaySpecificFrame(float frameNumber)
     {
         Animator anim = GetComponent<Animator>();
-        anim.speed = 1;
-        float frame = (1f / (totalFrames-1)) * animN;
+        anim.speed = 2;
+        float frame = (1f / ((totalFrames-1))) * animN;
         anim.Play("large-w-circle", 0, frame);
     }
 
@@ -175,7 +185,7 @@ public class MovePlayer : MonoBehaviour
                 continue;
             }
 
-            DrawTrajectoryOfCurrentFrame(Convert.ToInt32(neighbours[i.ToString()]), Color.black, 30);
+            DrawTrajectoryOfCurrentFrame(Convert.ToInt32(neighbours[i.ToString()]), Color.black, 100);            
         }
     }
 
@@ -184,10 +194,21 @@ public class MovePlayer : MonoBehaviour
         Animator anim = GetComponent<Animator>();        
         Vector3 lastPos = anim.transform.position;
 
-        // Debug.Log(currentFrame);
+        // var startRotation = transform.eulerAngles.y - frameRotationData[Convert.ToInt32(animN)];
+        var startRotation = transform.rotation.eulerAngles.y - frameRotationData[currentFrame];
+        
         for (var i = currentFrame; i < currentFrame + amountOfFrames; i++)
         {
-            Vector3 differenceVector = framePositionData[i + 1] - framePositionData[i];
+            if (i > framePositionData.Length-5)
+            {
+                continue;
+            }
+            Vector3 first = Quaternion.Euler(0, startRotation, 0) * framePositionData[i + 1];
+            Vector3 second = Quaternion.Euler(0, startRotation, 0) * framePositionData[i];
+            Vector3 differenceVector = first - second;
+
+
+            // Vector3 differenceVector = framePositionData[i + 1] - framePositionData[i];
             Vector3 newVector = lastPos + differenceVector;
             
             Debug.DrawLine(lastPos, newVector, color);
@@ -196,28 +217,43 @@ public class MovePlayer : MonoBehaviour
         }
     }
 
-    private Vector3 GetBestTrajectoryOfCurrentFrame(int currentFrame)
+    private Vector3[] GetBestTrajectoryOfCurrentFrame(int currentFrame)
     {
-        Animator anim = GetComponent<Animator>();
-        Vector3 lastPos = anim.transform.position;
+        Vector3 lastPos = transform.position;
+        Vector3[] threePos = new Vector3[3];
+
+        var startRotation = transform.rotation.eulerAngles.y - frameRotationData[currentFrame];
 
         for (var i = currentFrame; i < currentFrame + 30; i++)
         {
-            Vector3 differenceVector = framePositionData[i + 1] - framePositionData[i];
+            Vector3 first = Quaternion.Euler(0, startRotation, 0) * framePositionData[i + 1];
+            Vector3 second = Quaternion.Euler(0, startRotation, 0) * framePositionData[i];
+            Vector3 differenceVector = first - second;
             Vector3 newVector = lastPos + differenceVector;
 
             lastPos = newVector;
+
+            if (i == currentFrame + 9)
+            {
+                threePos[0] = newVector;
+            }
+            else if (i == currentFrame + 19)
+            {
+                threePos[1] = newVector;
+            }
+            else if (i == currentFrame + 29)
+            {
+                threePos[2] = newVector;
+            }
         }
 
-        return lastPos;
+        return threePos;
     }
 
     private double calculateCost(int currentFrame, int futureFrame)
     {
         var currentRoot = data["data"][0]["angles"][currentFrame];
-        var futureRoot = data["data"][0]["angles"][futureFrame];
-        var currentData = data["data"][1]["angles"][currentFrame];
-        var futureData = data["data"][1]["angles"][futureFrame];
+        var futureRoot = data["data"][0]["angles"][futureFrame];        
 
         Vector3 currentPositionRoot = new Vector3(currentRoot[0].ToObject<float>(), currentRoot[1].ToObject<float>(), currentRoot[2].ToObject<float>());
         Vector3 futurePositionRoot = new Vector3(futureRoot[0].ToObject<float>(), futureRoot[1].ToObject<float>(), futureRoot[2].ToObject<float>());
@@ -271,11 +307,11 @@ public class MovePlayer : MonoBehaviour
         
         if (animN < totalFrames)
         {            
-            Animator anim = GetComponent<Animator>();
-            anim.speed = 1;
-            float frame = (1f / (totalFrames-1)) * animN;
-            anim.Play("large-w-circle", 0, frame);            
-            positions.Add(animN.ToString(), anim.transform.position.x.ToString() + "," + anim.transform.position.z.ToString() + "," + anim.transform.rotation.eulerAngles.y.ToString());
+            //Animator anim = GetComponent<Animator>();
+            //anim.speed = 1;
+            //float frame = (1f / (totalFrames-1)) * animN;
+            //anim.Play("large-w-circle", 0, frame);            
+            positions.Add(animN.ToString(), transform.position.x.ToString() + "," + transform.position.z.ToString() + "," + transform.rotation.eulerAngles.y.ToString());
         }
 
         if (animN == totalFrames)
@@ -285,7 +321,6 @@ public class MovePlayer : MonoBehaviour
 
         animN++;
     }
-
 
     private void CalculateAllBestNeighbours()
     {
@@ -306,37 +341,49 @@ public class MovePlayer : MonoBehaviour
 
         File.WriteAllText("bestNeighbours_large-w-circle.json", bestNeighbours.ToString());
     }
+
     private float[] CalculateBestNext(float frame)
     {
-        float[] lowestFrame = new float[300] { 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000 };
-        double[] lowestCost = new double[300] { 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000, 10000000 };
+        var numOfNeighbours = 300;
+        float[] lowestFrame = new float[numOfNeighbours];
+        double[] lowestCost = new double[numOfNeighbours];
+
+        for (var k=0; k<numOfNeighbours; k++)
+        {
+            lowestFrame[k] = 10000000000000;
+            lowestCost[k] = 10000000000000;
+        }
+
         int currentFrame = Convert.ToInt32(frame);
 
         for (var i = startFrame; i < totalFrames; i++)
         {
-            if (currentFrame != i && (currentFrame - i != 1) && (currentFrame - i != 2) && (currentFrame - i != 3) && (currentFrame - i != 4) && (currentFrame - i != 5) 
-                && (currentFrame - i != 6) && (currentFrame - i != 7) && (currentFrame - i != 8) && (currentFrame - i != 9) && (currentFrame - i != 10))
+            if (currentFrame == i 
+                || (currentFrame > i && (currentFrame - i) < 11) 
+                || (currentFrame < i && (i-currentFrame) < 11)
+            ) {
+                continue;
+            }
+
+            double cost = calculateCost(currentFrame, i);
+
+            double highestCost = 0;
+            var highestCostPos = 0;
+
+            for (var j = 0; j < lowestCost.Length; j++)
             {
-                double cost = calculateCost(currentFrame, i);
-
-                double highestCost = 0;
-                var highestCostPos = 0;
-
-                for (var j = 0; j < lowestCost.Length; j++)
+                if (highestCost < lowestCost[j])
                 {
-                    if (highestCost < lowestCost[j])
-                    {
-                        highestCost = lowestCost[j];
-                        highestCostPos = j;
-                    }
-                }
-
-                if (cost < highestCost)
-                {
-                    lowestCost[highestCostPos] = cost;
-                    lowestFrame[highestCostPos] = i;
+                    highestCost = lowestCost[j];
+                    highestCostPos = j;
                 }
             }
+
+            if (cost < highestCost)
+            {
+                lowestCost[highestCostPos] = cost;
+                lowestFrame[highestCostPos] = i;
+            }            
         }
 
         return lowestFrame;

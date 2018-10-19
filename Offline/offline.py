@@ -231,5 +231,5 @@ def create_sim_file():
 
 
 if __name__ == '__main__':    
-    with open("large-w-circle.json", "w") as f:
-        f.write(json.dumps(parse_bvh("large-w-circle.bvh")))
+    with open("stop-no-circle.json", "w") as f:
+        f.write(json.dumps(parse_bvh("stop-no-circle.bvh")))
