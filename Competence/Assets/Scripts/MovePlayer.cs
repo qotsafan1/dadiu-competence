@@ -19,6 +19,8 @@ public class MovePlayer : MonoBehaviour
 
     JObject bestNeighbours;
 
+    public GameObject futurePath;
+
     Vector3[] framePositionData;
     float[] frameRotationData;
 
@@ -48,7 +50,7 @@ public class MovePlayer : MonoBehaviour
         currentFrame = startFrame;
         lastCalculatedFrame = startFrame;
         animN = startFrame;
-        futureWantedPosition = new Vector3[3] { transform.position, transform.position, transform.position };
+        futureWantedPosition = new Vector3[6] { transform.position, transform.position, transform.position, transform.position, transform.position, transform.position };
 
         // positions = new JObject();
         // CalculateAllBestNeighbours();
@@ -61,7 +63,7 @@ public class MovePlayer : MonoBehaviour
        DrawPossibilities();
 
        PlayAnim();
-        
+       
        
         // SavePositionData();
     }
@@ -77,13 +79,13 @@ public class MovePlayer : MonoBehaviour
 
         PlaySpecificFrame(animN);        
 
-        DrawTrajectoryOfCurrentFrame(Convert.ToInt32(animN), Color.red, 30);
+        DrawTrajectoryOfCurrentFrame(Convert.ToInt32(animN), Color.red, 60);
 
         
-        Debug.Log(animN);
+        //Debug.Log(animN);
         if (loopFrames == 30)
         {
-            Debug.Log("Calculating");
+            //Debug.Log("Calculating");
             animN = CalculateFrame();            
             loopFrames = 0;
         }
@@ -91,8 +93,7 @@ public class MovePlayer : MonoBehaviour
         {
             loopFrames++;
             animN += 1;
-        }
-        
+        }        
     }
 
     private Vector3 CalculateFuturePosition(int frameNumber)
@@ -113,19 +114,24 @@ public class MovePlayer : MonoBehaviour
     {
         List<Vector3> nextPosition = new List<Vector3>();
 
-        for (var i = 1; i <= 30; i++)
+        for (var i = 1; i <= 60; i++)
         {
             nextPosition.Add(CalculateFuturePosition(i));
         }
 
         for (var i = 1; i < nextPosition.Count; i++)
         {
-            Debug.DrawLine(nextPosition[i], nextPosition[i - 1], Color.blue);
+            LineRenderer lr = futurePath.GetComponent<LineRenderer>();
+            lr.SetPosition(i - 1, nextPosition[i-1]);
+            Debug.DrawLine(new Vector3(nextPosition[i].x, nextPosition[i].y+0.1f, nextPosition[i].z), new Vector3(nextPosition[i-1].x, nextPosition[i-1].y+0.1f, nextPosition[i-1].z), Color.red);
         }
 
-        futureWantedPosition[0] = nextPosition[nextPosition.Count - 21];
-        futureWantedPosition[1] = nextPosition[nextPosition.Count - 11];
-        futureWantedPosition[2] = nextPosition[nextPosition.Count - 1];
+        futureWantedPosition[0] = nextPosition[nextPosition.Count - 51];
+        futureWantedPosition[1] = nextPosition[nextPosition.Count - 41];
+        futureWantedPosition[2] = nextPosition[nextPosition.Count - 31];
+        futureWantedPosition[3] = nextPosition[nextPosition.Count - 21];
+        futureWantedPosition[4] = nextPosition[nextPosition.Count - 11];
+        futureWantedPosition[5] = nextPosition[nextPosition.Count - 1];
     }
 
     private float CalculateFrame()
@@ -140,7 +146,7 @@ public class MovePlayer : MonoBehaviour
         {
             int loopedFrame = Convert.ToInt32(neighbours[i.ToString()]);
 
-            if (loopedFrame + 62 > (totalFrames - 1) 
+            if (loopedFrame + 122 > (totalFrames - 1) 
                 || loopedFrame == currentFrame 
             ) {
                 continue;
@@ -150,7 +156,10 @@ public class MovePlayer : MonoBehaviour
 
             float temptFinish = Vector3.Distance(futureWantedPosition[0], lastPos[0]) 
                 + Vector3.Distance(futureWantedPosition[1], lastPos[1]) 
-                + 2*Vector3.Distance(futureWantedPosition[2], lastPos[2]);
+                + Vector3.Distance(futureWantedPosition[2], lastPos[2])
+                + Vector3.Distance(futureWantedPosition[3], lastPos[3])
+                + Vector3.Distance(futureWantedPosition[4], lastPos[4])
+                + Vector3.Distance(futureWantedPosition[5], lastPos[5]);
 
             if (temptFinish < bestFinish)
             {
@@ -220,11 +229,11 @@ public class MovePlayer : MonoBehaviour
     private Vector3[] GetBestTrajectoryOfCurrentFrame(int currentFrame)
     {
         Vector3 lastPos = transform.position;
-        Vector3[] threePos = new Vector3[3];
+        Vector3[] sixPos = new Vector3[6];
 
         var startRotation = transform.rotation.eulerAngles.y - frameRotationData[currentFrame];
 
-        for (var i = currentFrame; i < currentFrame + 30; i++)
+        for (var i = currentFrame; i < currentFrame + 60; i++)
         {
             Vector3 first = Quaternion.Euler(0, startRotation, 0) * framePositionData[i + 1];
             Vector3 second = Quaternion.Euler(0, startRotation, 0) * framePositionData[i];
@@ -235,19 +244,31 @@ public class MovePlayer : MonoBehaviour
 
             if (i == currentFrame + 9)
             {
-                threePos[0] = newVector;
+                sixPos[0] = newVector;
             }
             else if (i == currentFrame + 19)
             {
-                threePos[1] = newVector;
+                sixPos[1] = newVector;
             }
             else if (i == currentFrame + 29)
             {
-                threePos[2] = newVector;
+                sixPos[2] = newVector;
+            }
+            else if (i == currentFrame + 39)
+            {
+                sixPos[3] = newVector;
+            }
+            else if (i == currentFrame + 49)
+            {
+                sixPos[4] = newVector;
+            }
+            else if (i == currentFrame + 59)
+            {
+                sixPos[5] = newVector;
             }
         }
 
-        return threePos;
+        return sixPos;
     }
 
     private double calculateCost(int currentFrame, int futureFrame)
@@ -267,17 +288,25 @@ public class MovePlayer : MonoBehaviour
         var velocityBone = (currentPositionBone - futurePositionBone).magnitude / Time.deltaTime;
         var angleBone = Vector3.Angle(currentPositionBone, futurePositionBone);
 
+        Vector3 currentSecondPositionBone = currentPositionRoot + new Vector3(-9.375f, 0f, 0.020f);
+        Vector3 futureSecondPositionBone = futurePositionRoot + new Vector3(-9.375f, 0f, 0.020f);
+
+        var velocitySecondBone = (currentSecondPositionBone - futureSecondPositionBone).magnitude / Time.deltaTime;
+        var angleSecondBone = Vector3.Angle(currentSecondPositionBone, futureSecondPositionBone);
+
         double value = Math.Sqrt(Math.Pow(Convert.ToDouble(velocityRoot), 2) +
                     Math.Pow(Convert.ToDouble(angleRoot), 2) +
                     Math.Pow(Convert.ToDouble(velocityBone), 2) +
-                    Math.Pow(Convert.ToDouble(angleBone), 2));
+                    Math.Pow(Convert.ToDouble(angleBone), 2) +
+                    Math.Pow(Convert.ToDouble(velocitySecondBone), 2) +
+                    Math.Pow(Convert.ToDouble(angleSecondBone), 2));
 
         return value;
     }
 
     public void LoadPositionData()
     {
-        data = JObject.Parse(File.ReadAllText(@"C:\Users\qotsafan1\Documents\Competence\dadiu-competence\Offline\large-w-circle.json"));
+        data = JObject.Parse(File.ReadAllText(@"C:\Users\siggi\Documents\dadiu-competence\Offline\large-w-circle.json"));
 
         foreach (var d in data["data"][0]["angles"])
         {
@@ -285,8 +314,8 @@ public class MovePlayer : MonoBehaviour
         }
         Debug.Log("Totalframes: " + totalFrames);
     
-        positions = JObject.Parse(File.ReadAllText(@"C:\Users\qotsafan1\Documents\Competence\dadiu-competence\Competence\positions_large-w-circle.json"));
-        bestNeighbours = JObject.Parse(File.ReadAllText(@"C:\Users\qotsafan1\Documents\Competence\dadiu-competence\Competence\bestNeighbours_large-w-circle.json"));
+        positions = JObject.Parse(File.ReadAllText(@"C:\Users\siggi\Documents\dadiu-competence\Competence\positions_large-w-circle.json"));
+        bestNeighbours = JObject.Parse(File.ReadAllText(@"C:\Users\siggi\Documents\dadiu-competence\Competence\bestNeighbours_large-w-circle.json"));
 
         frameRotationData = new float[totalFrames];
         framePositionData = new Vector3[totalFrames];
